@@ -3,7 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"go-auth/queries"
+	"go-auth/models"
 	"io/ioutil"
 	"net/http"
 )
@@ -26,7 +26,7 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(email)
 
-	user, err := queries.GetUser(email)
+	user, err := models.User.Create()
 	if err != nil {
 		panic("Error getting user")
 	}
@@ -55,7 +55,9 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	email := dat["email"]
 	password := dat["password"]
 
-	err = queries.CreateUser(email, password)
+	usr := map[string]interface{}{"email": email, "password": password}
+
+	err = queries.CreateUser(*usr)
 
 	message := "Success"
 
