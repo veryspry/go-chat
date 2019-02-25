@@ -26,7 +26,7 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(email)
 
-	user, err := models.User.Create()
+	user, err := models.GetUserByEmail(email)
 	if err != nil {
 		panic("Error getting user")
 	}
@@ -40,30 +40,63 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 // CreateUserHandler - POST route to create a user
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 
+	message := "Success"
+
 	// Read the request body
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		panic(err)
+		message = "error reading request body"
+		w.Write([]byte(message))
 	}
 	// Unmarshal the json
 	byt := []byte(body)
 	var dat map[string]string
 	if err := json.Unmarshal(byt, &dat); err != nil {
+		message = "error reading request body"
+		w.Write([]byte(message))
 		panic(err)
 	}
 
 	email := dat["email"]
 	password := dat["password"]
 
-	usr := map[string]interface{}{"email": email, "password": password}
+	usr := models.User{Email: email, Password: password}
 
-	err = queries.CreateUser(*usr)
-
-	message := "Success"
+	_, err = usr.Create()
 
 	if err != nil {
-		message = "Error creating account"
+		message = "error creating user"
+		w.Write([]byte(message))
+		return
 	}
 
 	w.Write([]byte(message))
+}
+
+// LoginHandler login handler
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
+
+	errMsg := "error reading request body"
+
+	// Read the request body
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.Write([]byte(errMsg))
+	}
+
+	// Unmarshal the json
+	byt := []byte(body)
+	var dat map[string]string
+	if err := json.Unmarshal(byt, &dat); err != nil {
+		w.Write([]byte(errMsg))
+		panic(err)
+	}
+
+	email := dat["email"]
+	password := dat["password"]
+
+	resp := models.Login(email, password)
+	fmt.Println(resp)
+
+	w.Write([]byte("success"))
 }

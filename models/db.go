@@ -6,17 +6,22 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
+	// The postgres database dialect
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
+// Scope this at highest file level so GetDB has access to it
 var db *gorm.DB
 
 func init() {
 
-	e := godotenv.Load() //Load .env file
+	// Load the .env file
+	e := godotenv.Load()
 	if e != nil {
 		fmt.Print(e)
 	}
 
+	// Get vars from environment
 	dbUsername := os.Getenv("db_user")
 	dbPassword := os.Getenv("db_password")
 	dbName := os.Getenv("db_name")
@@ -26,17 +31,19 @@ func init() {
 	dbURI := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s", dbHost, dbUsername, dbName, dbPassword)
 	fmt.Println(dbURI)
 
+	// Connect to the database
 	conn, err := gorm.Open("postgres", dbURI)
 	if err != nil {
 		fmt.Print(err)
 	}
 
 	db = conn
+
 	//Database migration
 	db.Debug().AutoMigrate(&User{})
 }
 
-// GetDB return a reference to the db
+// GetDB returns a reference to the db
 func GetDB() *gorm.DB {
 	return db
 }
