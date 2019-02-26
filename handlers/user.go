@@ -4,73 +4,60 @@ import (
 	"encoding/json"
 	"fmt"
 	"go-auth/models"
+	u "go-auth/utils"
 	"io/ioutil"
 	"net/http"
 )
 
 // GetUserHandler - GET Route to for user
 func GetUserHandler(w http.ResponseWriter, r *http.Request) {
-	// Read the request body
-	body, err := ioutil.ReadAll(r.Body)
+
+	user := &models.User{}
+	//decode the request body into struct
+	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
-		panic(err)
-	}
-	// Unmarshal the json
-	byt := []byte(body)
-	var dat map[string]interface{}
-	if err := json.Unmarshal(byt, &dat); err != nil {
-		panic(err)
+		u.Respond(w, u.Message(false, "Invalid request"))
+		return
 	}
 
-	email := dat["email"].(string)
+	email := user.Email
 
-	fmt.Println(email)
-
-	user, err := models.GetUserByEmail(email)
-	if err != nil {
-		panic("Error getting user")
-	}
-
-	fmt.Println(user)
-
-	w.Write([]byte("User found"))
+	//Create account
+	resp := models.GetUserByEmail(email)
+	u.Respond(w, resp)
 
 }
 
 // CreateUserHandler - POST route to create a user
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 
-	message := "Success"
-
-	// Read the request body
-	body, err := ioutil.ReadAll(r.Body)
+	user := &models.User{}
+	//decode the request body into struct
+	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
-		message = "error reading request body"
-		w.Write([]byte(message))
-	}
-	// Unmarshal the json
-	byt := []byte(body)
-	var dat map[string]string
-	if err := json.Unmarshal(byt, &dat); err != nil {
-		message = "error reading request body"
-		w.Write([]byte(message))
-		panic(err)
-	}
-
-	email := dat["email"]
-	password := dat["password"]
-
-	usr := models.User{Email: email, Password: password}
-
-	_, err = usr.Create()
-
-	if err != nil {
-		message = "error creating user"
-		w.Write([]byte(message))
+		u.Respond(w, u.Message(false, "Invalid request"))
 		return
 	}
 
-	w.Write([]byte(message))
+	//Create account
+	resp := user.Create()
+	u.Respond(w, resp)
+}
+
+// Authenticate a user
+func Authenticate(w http.ResponseWriter, r *http.Request) {
+
+	user := &models.User{}
+
+	//decode the request body into struct
+	err := json.NewDecoder(r.Body).Decode(user)
+	if err != nil {
+		u.Respond(w, u.Message(false, "Invalid request"))
+		return
+	}
+
+	resp := models.Login(user.Email, user.Password)
+	u.Respond(w, resp)
 }
 
 // LoginHandler login handler

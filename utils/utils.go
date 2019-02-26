@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -12,6 +13,7 @@ func Message(status bool, message string) map[string]interface{} {
 
 // Respond - response formatter
 func Respond(w http.ResponseWriter, data map[string]interface{}) {
+	fmt.Print("data", data)
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data)
 }

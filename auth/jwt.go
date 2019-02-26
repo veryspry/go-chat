@@ -17,7 +17,7 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//List of endpoints that don't require auth
-		notAuth := []string{"/auth", "/auth/new-user", "/user"}
+		notAuth := []string{"/auth", "/auth/new-user", "/user", "login", "user/new"}
 		//current request path
 		requestPath := r.URL.Path
 
@@ -83,8 +83,10 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 		usrID := fmt.Sprintf("UserID %d", tk.UserID) //Useful for monitoring
 		fmt.Println(usrID)
 		ctx := context.WithValue(r.Context(), "user", tk.UserID)
+
+		fmt.Print("ctx", ctx)
 		r = r.WithContext(ctx)
-		//proceed in the middleware chain!
+		//proceed in the middleware chain
 		next.ServeHTTP(w, r)
 	})
 }
