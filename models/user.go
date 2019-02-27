@@ -1,6 +1,7 @@
 package models
 
 import (
+	"net/http"
 	"os"
 	"strings"
 
@@ -92,7 +93,7 @@ func (user *User) Create() map[string]interface{} {
 }
 
 // Login a user
-func Login(email, password string) map[string]interface{} {
+func Login(email, password string, w http.ResponseWriter) map[string]interface{} {
 
 	user := &User{}
 	err := GetDB().Table("users").Where("email = ?", email).First(user).Error
@@ -106,7 +107,7 @@ func Login(email, password string) map[string]interface{} {
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	// Passwords don't match
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
-		return u.Message(false, "Password invalid. Please try again.")
+		return u.Message(false, "Password invalid")
 	}
 
 	// Delete the password
@@ -119,8 +120,15 @@ func Login(email, password string) map[string]interface{} {
 	// Store the token in the response
 	user.Token = tokenString
 
+	// Create a session"
+	err = u.CreateSession(w, tokenString, user.Email)
+	if err != nil {
+		// If there is an error in setting the cache, return an internal server error
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
 	// Compose response message
-	resp := u.Message(true, "Logged In")
+	resp := u.Message(true, "Logged in")
 	// Attach user to the response message
 	resp["user"] = user
 

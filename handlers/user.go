@@ -56,7 +56,12 @@ func Authenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := models.Login(user.Email, user.Password)
+	resp := models.Login(user.Email, user.Password, w)
+
+	// test := resp["user"].(interface{})
+	// test = test.(*models.User)
+	// fmt.Print("USER", &test)
+
 	u.Respond(w, resp)
 }
 
@@ -82,7 +87,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	email := dat["email"]
 	password := dat["password"]
 
-	resp := models.Login(email, password)
+	resp := models.Login(email, password, w)
 	fmt.Println(resp)
 
 	w.Write([]byte("success"))
