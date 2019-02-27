@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -65,18 +64,18 @@ func (user *User) Create() map[string]interface{} {
 	// }
 	// user.ID = id
 
+	// Create new JWT token for the newly registered user
+	tk := &Token{UserID: user.ID}
+	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
+	tokenString, _ := token.SignedString([]byte(os.Getenv("token_password")))
+	user.Token = tokenString
+
 	db := GetDB()
 	db.Create(&user)
 
 	if user.ID <= 0 {
 		return u.Message(false, "Failed to create account, connection error.")
 	}
-
-	// Create new JWT token for the newly registered user
-	tk := &Token{UserID: user.ID}
-	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
-	tokenString, _ := token.SignedString([]byte(os.Getenv("token_password")))
-	user.Token = tokenString
 
 	// Delete password
 	user.Password = ""
@@ -85,6 +84,10 @@ func (user *User) Create() map[string]interface{} {
 	response := u.Message(true, "user has been created")
 	// Attach the user to the response
 	response["user"] = user
+
+	// TODO: this should be read from the user, but can't figure out how to do that yet
+	// Attach the token
+	response["token"] = tokenString
 	return response
 }
 
@@ -121,8 +124,6 @@ func Login(email, password string) map[string]interface{} {
 	// Attach user to the response message
 	resp["user"] = user
 
-	// TODO: Remove after debug
-	fmt.Println(resp["user"])
 	return resp
 }
 

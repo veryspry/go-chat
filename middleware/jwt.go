@@ -1,4 +1,4 @@
-package auth
+package middleware
 
 import (
 	"context"
@@ -16,8 +16,9 @@ import (
 var JwtAuthentication = func(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
 		//List of endpoints that don't require auth
-		notAuth := []string{"/auth", "/auth/new-user", "/user", "login", "user/new"}
+		notAuth := []string{"/auth", "/auth/new-user", "/login", "/user/new"}
 		//current request path
 		requestPath := r.URL.Path
 
