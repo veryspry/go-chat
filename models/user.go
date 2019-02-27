@@ -96,6 +96,8 @@ func (user *User) Create() map[string]interface{} {
 func Login(email, password string, w http.ResponseWriter) map[string]interface{} {
 
 	user := &User{}
+
+	// Look up user record
 	err := GetDB().Table("users").Where("email = ?", email).First(user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -104,8 +106,8 @@ func Login(email, password string, w http.ResponseWriter) map[string]interface{}
 		return u.Message(false, "Connection error. Please retry")
 	}
 
+	// Check if passwords match
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	// Passwords don't match
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 		return u.Message(false, "Password invalid")
 	}
@@ -113,24 +115,16 @@ func Login(email, password string, w http.ResponseWriter) map[string]interface{}
 	// Delete the password
 	user.Password = ""
 
-	// Create JWT token
+	// Create JWT token and store it in response
 	tk := &Token{UserID: user.ID}
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 	tokenString, _ := token.SignedString([]byte(os.Getenv("token_password")))
-	// Store the token in the response
 	user.Token = tokenString
 
-	// Create a session"
-	err = u.CreateSession(w, tokenString, user.Email)
-	if err != nil {
-		// If there is an error in setting the cache, return an internal server error
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-
-	// Compose response message
+	// Compose response message and attach user to the response message
 	resp := u.Message(true, "Logged in")
-	// Attach user to the response message
 	resp["user"] = user
+	resp["token"] = tokenString
 
 	return resp
 }

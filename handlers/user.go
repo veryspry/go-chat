@@ -2,11 +2,14 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"go-auth/models"
 	u "go-auth/utils"
-	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
+	"time"
+
+	"github.com/antonlindstrom/pgstore"
 )
 
 // GetUserHandler - GET Route to for user
@@ -58,37 +61,42 @@ func Authenticate(w http.ResponseWriter, r *http.Request) {
 
 	resp := models.Login(user.Email, user.Password, w)
 
-	// test := resp["user"].(interface{})
-	// test = test.(*models.User)
-	// fmt.Print("USER", &test)
+	token := resp["token"].(string)
+
+	// Create a session and session cookie
+
+	// Get token_secret
+	tokenSecret := os.Getenv("token_secret")
+	// Get db uri
+	dbURI := models.GetDBURI()
+
+	// Fetch new store.
+	store, err := pgstore.NewPGStore(dbURI, []byte(tokenSecret))
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+
+	defer store.Close()
+
+	// Run a background goroutine to clean up expired sessions from the database
+	defer store.StopCleanup(store.Cleanup(time.Minute * 5))
+
+	// Create a session.
+	session, err := store.New(r, token)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		u.Respond(w, u.Message(false, "Internal server error"))
+	}
+
+	// Add a value
+	session.Values["userEmail"] = user.Email
+
+	// Save
+	if err = session.Save(r, w); err != nil {
+		log.Fatalf("Error saving session: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		u.Respond(w, u.Message(false, "Internal server error"))
+	}
 
 	u.Respond(w, resp)
-}
-
-// LoginHandler login handler
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
-
-	errMsg := "error reading request body"
-
-	// Read the request body
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		w.Write([]byte(errMsg))
-	}
-
-	// Unmarshal the json
-	byt := []byte(body)
-	var dat map[string]string
-	if err := json.Unmarshal(byt, &dat); err != nil {
-		w.Write([]byte(errMsg))
-		panic(err)
-	}
-
-	email := dat["email"]
-	password := dat["password"]
-
-	resp := models.Login(email, password, w)
-	fmt.Println(resp)
-
-	w.Write([]byte("success"))
 }

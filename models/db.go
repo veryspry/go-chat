@@ -6,12 +6,14 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
+
 	// The postgres database dialect
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 // Scope this at highest file level so GetDB has access to it
 var db *gorm.DB
+var dbURI string
 
 func init() {
 
@@ -28,7 +30,7 @@ func init() {
 	dbHost := os.Getenv("db_host")
 
 	//Build connection string
-	dbURI := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s", dbHost, dbUsername, dbName, dbPassword)
+	dbURI = fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s", dbHost, dbUsername, dbName, dbPassword)
 	fmt.Println(dbURI)
 
 	// Connect to the database
@@ -46,4 +48,9 @@ func init() {
 // GetDB returns a reference to the db
 func GetDB() *gorm.DB {
 	return db
+}
+
+// GetDBURI - get the formatted DBURI
+func GetDBURI() string {
+	return dbURI
 }
