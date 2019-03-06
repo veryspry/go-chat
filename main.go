@@ -59,14 +59,10 @@ func main() {
 	router.HandleFunc("/user", handlers.GetUserHandler).Methods("GET")
 	router.HandleFunc("/user/new", handlers.CreateUserHandler).Methods("POST")
 	router.HandleFunc("/login", handlers.Authenticate).Methods("POST", "OPTIONS")
+	router.HandleFunc("/ws", handleWebSocketConns)
 
-	// Server react build
-	// buildHandler := http.FileServer(http.Dir(""))
-	// router.PathPrefix("/").Handler(buildHandler)
-
-	// Serve static files
-	// staticHandler := http.StripPrefix("/static/", http.FileServer(http.Dir("<path to build/static>")))
-	// router.PathPrefix("/static/").Handler(staticHandler)
+	// Start listening for incoming chat messages
+	go handleWebSocketMessages()
 
 	// Get port from .env file, we did not specify any port so this should return an empty string when tested locally
 	port := os.Getenv("PORT")
