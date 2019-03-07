@@ -8,30 +8,11 @@ import (
 	"os"
 
 	"go-auth/models"
-	u "go-auth/utils"
 
 	"github.com/gorilla/mux"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/joho/godotenv"
 )
-
-func test(w http.ResponseWriter, r *http.Request) {
-	headers := w.Header()
-	headers.Add("Access-Control-Allow-Origin", "*")
-	headers.Add("Access-Control-Allow-Credentials", "true")
-	headers.Add("Content-Type", "application/json")
-	headers.Add("Vary", "Origin")
-	headers.Add("Vary", "Access-Control-Request-Method")
-	headers.Add("Vary", "Access-Control-Request-Headers")
-	headers.Add("Access-Control-Allow-Headers", "Content-Type, Origin, Accept, token")
-	headers.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT")
-
-	w.WriteHeader(http.StatusOK)
-
-	resp := map[string]interface{}{"status": "Okay"}
-
-	u.Respond(w, resp)
-}
 
 func main() {
 
@@ -53,16 +34,16 @@ func main() {
 	// CORS middleware
 	router.Use(middleware.CORSHandler)
 	// JWT middleware
-	router.Use(middleware.JwtAuthentication)
+	// router.Use(middleware.JwtAuthentication)
 
 	// Routes
 	router.HandleFunc("/user", handlers.GetUserHandler).Methods("GET")
 	router.HandleFunc("/user/new", handlers.CreateUserHandler).Methods("POST")
 	router.HandleFunc("/login", handlers.Authenticate).Methods("POST", "OPTIONS")
-	router.HandleFunc("/ws", handleWebSocketConns)
+	router.HandleFunc("/ws", handlers.HandleWebSocketConns)
 
 	// Start listening for incoming chat messages
-	go handleWebSocketMessages()
+	go handlers.HandleWebSocketMessages()
 
 	// Get port from .env file, we did not specify any port so this should return an empty string when tested locally
 	port := os.Getenv("PORT")

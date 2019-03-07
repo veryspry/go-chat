@@ -1,6 +1,7 @@
-package main
+package handlers
 
 import (
+	u "go-auth/utils"
 	"log"
 	"net/http"
 
@@ -11,7 +12,13 @@ var clients = make(map[*websocket.Conn]bool) // connected clients
 var broadcast = make(chan Message)           // broadcast channel
 
 // Configure the upgrader
-var upgrader = websocket.Upgrader{}
+var upgrader = websocket.Upgrader{
+	// TODO: Update this with a better check
+	// A hacky way to allow upgrade requests from any origin
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
 
 // Message is a structure for a websocket message
 type Message struct {
@@ -20,12 +27,16 @@ type Message struct {
 	Message  string `json:"message"`
 }
 
-// HandleConnections handles websocket connections
-func handleWebSocketConns(w http.ResponseWriter, r *http.Request) {
+// HandleWebSocketConns handles websocket connections
+func HandleWebSocketConns(w http.ResponseWriter, r *http.Request) {
 	// Upgrade initial GET request to a websocket
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Fatal(err)
+
+		msg := u.Message(false, "Websocket connection error")
+		w.WriteHeader(http.StatusInternalServerError)
+		u.Respond(w, msg)
+
 	}
 	// Make sure we close the connection when the function returns
 	defer ws.Close()
@@ -46,7 +57,7 @@ func handleWebSocketConns(w http.ResponseWriter, r *http.Request) {
 }
 
 // HandleWebSocketMessages pushes out messsages and removes clients if they have closed a connection
-func handleWebSocketMessages() {
+func HandleWebSocketMessages() {
 	for {
 		// Grab the next message from the broadcast channel
 		msg := <-broadcast
