@@ -32,11 +32,9 @@ func HandleWebSocketConns(w http.ResponseWriter, r *http.Request) {
 	// Upgrade initial GET request to a websocket
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-
 		msg := u.Message(false, "Websocket connection error")
 		w.WriteHeader(http.StatusInternalServerError)
 		u.Respond(w, msg)
-
 	}
 	// Make sure we close the connection when the function returns
 	defer ws.Close()
@@ -47,7 +45,9 @@ func HandleWebSocketConns(w http.ResponseWriter, r *http.Request) {
 		// Read in a new message as JSON and map it to a Message object
 		err := ws.ReadJSON(&msg)
 		if err != nil {
-			log.Printf("error: %v", err)
+			msg := u.Message(false, "Websocket connection error")
+			w.WriteHeader(http.StatusInternalServerError)
+			u.Respond(w, msg)
 			delete(clients, ws)
 			break
 		}
