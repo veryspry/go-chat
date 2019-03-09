@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"go-auth/models"
+	"go-auth/socket"
 
 	"github.com/gorilla/mux"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -28,6 +29,9 @@ func main() {
 	db := models.GetDB()
 	defer db.Close()
 
+	// Create a new websocket hub
+	wsHub := socket.NewHub()
+
 	// Create a router
 	router := mux.NewRouter()
 
@@ -40,7 +44,10 @@ func main() {
 	router.HandleFunc("/user", handlers.GetUserHandler).Methods("GET")
 	router.HandleFunc("/user/new", handlers.CreateUserHandler).Methods("POST")
 	router.HandleFunc("/login", handlers.Authenticate).Methods("POST", "OPTIONS")
-	router.HandleFunc("/ws", handlers.HandleWebSocketConns)
+	// Ticketing route for ws authentication
+	router.HandleFunc("/ws/auth", handlers.HandleWebSocketAuth).Methods("POST", "OPTIONS")
+	// Websocket connection
+	router.HandleFunc("/ws/{roomID}", wsHub.HandleWebSocketConns).Methods("GET")
 
 	// Start listening for incoming chat messages
 	go handlers.HandleWebSocketMessages()

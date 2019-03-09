@@ -15,7 +15,7 @@ import (
 	"github.com/gorilla/securecookie"
 )
 
-// GetUserHandler - GET Route to for user
+// GetUserHandler - GET Route for user
 func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	user := &models.User{}

@@ -43,6 +43,7 @@ func init() {
 
 	//Database migration
 	db.Debug().AutoMigrate(&User{})
+	db.Debug().AutoMigrate(&Ticket{})
 }
 
 // GetDB returns a reference to the db

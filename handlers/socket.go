@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"encoding/json"
+	"fmt"
 	u "go-auth/utils"
 	"log"
 	"net/http"
@@ -28,6 +30,7 @@ type Message struct {
 }
 
 // HandleWebSocketConns handles websocket connections
+// TODO: This needs to check for a valid "ticket" on initial upgrade
 func HandleWebSocketConns(w http.ResponseWriter, r *http.Request) {
 	// Upgrade initial GET request to a websocket
 	ws, err := upgrader.Upgrade(w, r, nil)
@@ -71,4 +74,22 @@ func HandleWebSocketMessages() {
 			}
 		}
 	}
+}
+
+type Test struct {
+	Username string
+	Message  string
+}
+
+// HandleWebSocketAuth creates and stores or finds and then returns a "ticket" to the client for use with websocket auth
+func HandleWebSocketAuth(w http.ResponseWriter, r *http.Request) {
+
+	test := &Test{}
+	//decode the request body into struct
+	err := json.NewDecoder(r.Body).Decode(test)
+	if err != nil {
+		u.Respond(w, u.Message(false, "Invalid request"))
+		return
+	}
+	fmt.Println("\n", test)
 }

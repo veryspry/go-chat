@@ -167,3 +167,24 @@ func GetUserByID(id uint) *User {
 
 	return user
 }
+
+// GetUserByToken returns a user by their token
+func GetUserByToken(token string) map[string]interface{} {
+
+	// Get the db connection
+	db := GetDB()
+	user := &User{}
+
+	// Lookup the ticket
+	db.Table("users").Where("token = ?", token).First(user)
+	// If ticket doesn't exist
+	if user.Token == "" {
+		return nil
+	}
+
+	// Compose response message
+	resp := u.Message(true, "Ticket found")
+	// Add ticket to the response
+	resp["user"] = user
+	return resp
+}
