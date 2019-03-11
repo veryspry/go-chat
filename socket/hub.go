@@ -1,6 +1,7 @@
 package socket
 
 import (
+	"fmt"
 	u "go-auth/utils"
 	"net/http"
 
@@ -20,6 +21,8 @@ type Hub struct {
 // HandleWebSocketConns handles websocket connections
 // TODO: This needs to check for a valid "ticket" on initial upgrade
 func (hub *Hub) HandleWebSocketConns(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("handler")
 
 	params := mux.Vars(r)
 	roomID := params["roomID"]
@@ -48,6 +51,8 @@ func (hub *Hub) HandleWebSocketConns(w http.ResponseWriter, r *http.Request) {
 
 // GetRoom creates a new room if it doesn't exist and returns it
 func (hub *Hub) GetRoom(id uuid.UUID) *Room {
+
+	fmt.Println("getroom")
 
 	if _, ok := hub.hub[id]; !ok {
 		hub.hub[id] = NewRoom(id)

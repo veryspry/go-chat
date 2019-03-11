@@ -39,6 +39,9 @@ func HandleWebSocketConns(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		u.Respond(w, msg)
 	}
+
+	fmt.Println(r.GetBody)
+
 	// Make sure we close the connection when the function returns
 	defer ws.Close()
 	// Register our new client

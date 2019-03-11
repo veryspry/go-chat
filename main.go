@@ -47,10 +47,10 @@ func main() {
 	// Ticketing route for ws authentication
 	router.HandleFunc("/ws/auth", handlers.HandleWebSocketAuth).Methods("POST", "OPTIONS")
 	// Websocket connection
-	router.HandleFunc("/ws/{roomID}", wsHub.HandleWebSocketConns).Methods("GET")
+	router.HandleFunc("/ws/{roomID}", wsHub.HandleWebSocketConns).Methods("GET", "POST")
 
 	// Start listening for incoming chat messages
-	go handlers.HandleWebSocketMessages()
+	// go handlers.HandleWebSocketMessages()
 
 	// Get port from .env file, we did not specify any port so this should return an empty string when tested locally
 	port := os.Getenv("PORT")

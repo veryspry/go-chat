@@ -24,7 +24,9 @@ func NewClient(conn *websocket.Conn) *Client {
 
 // WriteMsg writes a message to a client
 func (c *Client) WriteMsg(msg string) {
-	err := c.conn.WriteJSON(msg)
+	m := Message{}
+	m.Message = msg
+	err := c.conn.WriteJSON(m)
 	if err != nil {
 		// TODO: Update error handling to send back status, etc to the client
 		log.Println("write:", err)

@@ -21,6 +21,7 @@ type Room struct {
 
 // Join adds a new client to a room
 func (r *Room) Join(conn *websocket.Conn) uuid.UUID {
+	fmt.Println("joinroom")
 	id := u.NewUUID()
 	r.clients[id] = NewClient(conn)
 	fmt.Printf("New client joined %s", r.id)
@@ -36,6 +37,7 @@ func (r *Room) Leave(id uuid.UUID) {
 
 // BroadcastAll broadcasts a message to everyone in a room, including the sender
 func (r *Room) BroadcastAll(msg string) {
+	fmt.Println("broadcastALL")
 	for _, client := range r.clients {
 		client.WriteMsg(msg)
 	}
@@ -43,6 +45,7 @@ func (r *Room) BroadcastAll(msg string) {
 
 // BroadcastExc broadcasts a message to everyone, excluding the sender
 func (r *Room) BroadcastExc(senderID uuid.UUID, msg string) {
+	fmt.Println("broadcastEXC", msg)
 	for id, client := range r.clients {
 		if id != senderID {
 			client.WriteMsg(msg)
@@ -52,6 +55,7 @@ func (r *Room) BroadcastExc(senderID uuid.UUID, msg string) {
 
 // HandleMsg broadcasts a messages to a room
 func (r *Room) HandleMsg(id uuid.UUID) {
+	fmt.Println("handlemessage")
 	for {
 		if r.clients[id] == nil {
 			break
