@@ -9,12 +9,13 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"
+	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // User type for db
 type User struct {
-	gorm.Model
+	BaseFields
 	Email    string `gorm:"unique;not null"`
 	Password string `gorm:"not null"`
 	Token    string `json:"token";sql:"-"`
@@ -57,13 +58,12 @@ func (user *User) Create() map[string]interface{} {
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	user.Password = string(hashedPassword)
 
-	// TODO debug why a uuid won't save to the db
 	// Generate and set ID field using uuid v4
-	// id, err := uuid.NewV4()
-	// if err != nil {
-	// 	u.Message(false, "Failed to create account, error creating ID")
-	// }
-	// user.ID = id
+	id, err := uuid.NewV4()
+	if err != nil {
+		return u.Message(false, "Failed to create account, error creating ID")
+	}
+	user.ID = id
 
 	// Create new JWT token for the newly registered user
 	tk := &Token{UserID: user.ID}
@@ -73,10 +73,6 @@ func (user *User) Create() map[string]interface{} {
 
 	db := GetDB()
 	db.Create(&user)
-
-	if user.ID <= 0 {
-		return u.Message(false, "Failed to create account, connection error.")
-	}
 
 	// Delete password
 	user.Password = ""

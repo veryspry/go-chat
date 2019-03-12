@@ -38,7 +38,7 @@ func main() {
 	// CORS middleware
 	router.Use(middleware.CORSHandler)
 	// JWT middleware
-	// router.Use(middleware.JwtAuthentication)
+	router.Use(middleware.JwtAuthentication)
 
 	// Routes
 	router.HandleFunc("/user", handlers.GetUserHandler).Methods("GET")

@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/gorilla/websocket"
+	uuid "github.com/satori/go.uuid"
 )
 
 // Client is a vehicle to read and write messages from a client
@@ -23,9 +24,10 @@ func NewClient(conn *websocket.Conn) *Client {
 }
 
 // WriteMsg writes a message to a client
-func (c *Client) WriteMsg(msg string) {
+func (c *Client) WriteMsg(senderID uuid.UUID, msg string) {
 	m := Message{}
 	m.Message = msg
+	m.UserID = senderID
 	err := c.conn.WriteJSON(m)
 	if err != nil {
 		// TODO: Update error handling to send back status, etc to the client

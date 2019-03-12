@@ -51,7 +51,7 @@ func GetDB() *gorm.DB {
 	return db
 }
 
-// GetDBURI - get the formatted DBURI
+// GetDBURI returns the formatted DBURI
 func GetDBURI() string {
 	return dbURI
 }

@@ -20,13 +20,12 @@ type Room struct {
 }
 
 // Join adds a new client to a room
-func (r *Room) Join(conn *websocket.Conn) uuid.UUID {
-	fmt.Println("joinroom")
-	id := u.NewUUID()
-	r.clients[id] = NewClient(conn)
-	fmt.Printf("New client joined %s", r.id)
+func (r *Room) Join(conn *websocket.Conn, userID uuid.UUID) uuid.UUID {
+
+	r.clients[userID] = NewClient(conn)
+	fmt.Printf("New client joined %s", userID)
 	r.count++
-	return id
+	return userID
 }
 
 // Leave removes a client from a room
@@ -36,26 +35,23 @@ func (r *Room) Leave(id uuid.UUID) {
 }
 
 // BroadcastAll broadcasts a message to everyone in a room, including the sender
-func (r *Room) BroadcastAll(msg string) {
-	fmt.Println("broadcastALL")
+func (r *Room) BroadcastAll(senderID uuid.UUID, msg string) {
 	for _, client := range r.clients {
-		client.WriteMsg(msg)
+		client.WriteMsg(senderID, msg)
 	}
 }
 
 // BroadcastExc broadcasts a message to everyone, excluding the sender
 func (r *Room) BroadcastExc(senderID uuid.UUID, msg string) {
-	fmt.Println("broadcastEXC", msg)
 	for id, client := range r.clients {
 		if id != senderID {
-			client.WriteMsg(msg)
+			client.WriteMsg(senderID, msg)
 		}
 	}
 }
 
 // HandleMsg broadcasts a messages to a room
 func (r *Room) HandleMsg(id uuid.UUID) {
-	fmt.Println("handlemessage")
 	for {
 		if r.clients[id] == nil {
 			break
@@ -63,7 +59,7 @@ func (r *Room) HandleMsg(id uuid.UUID) {
 		out := <-r.clients[id].out
 
 		if out.BroadcastAll == true {
-			r.BroadcastAll(out.Message)
+			r.BroadcastAll(id, out.Message)
 		} else {
 			r.BroadcastExc(id, out.Message)
 		}

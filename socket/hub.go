@@ -1,7 +1,6 @@
 package socket
 
 import (
-	"fmt"
 	u "go-auth/utils"
 	"net/http"
 
@@ -22,11 +21,15 @@ type Hub struct {
 // TODO: This needs to check for a valid "ticket" on initial upgrade
 func (hub *Hub) HandleWebSocketConns(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Println("handler")
-
+	// Get the room id
 	params := mux.Vars(r)
 	roomID := params["roomID"]
 	roomUUID := u.UUIDFromString(roomID)
+
+	// Get the user id which is sent by way of a query string
+	queryStr := r.URL.Query()
+	userIDStr := queryStr["userID"][0]
+	userID := u.UUIDFromString(userIDStr)
 
 	// Upgrade initial GET request to a websocket
 	ws, err := hub.upgrader.Upgrade(w, r, nil)
@@ -39,7 +42,7 @@ func (hub *Hub) HandleWebSocketConns(w http.ResponseWriter, r *http.Request) {
 	defer ws.Close()
 
 	room := hub.GetRoom(roomUUID)
-	id := room.Join(ws)
+	id := room.Join(ws, userID)
 
 	// Reads from the client's out bound channel and broadcasts it
 	go room.HandleMsg(id)
@@ -51,8 +54,6 @@ func (hub *Hub) HandleWebSocketConns(w http.ResponseWriter, r *http.Request) {
 
 // GetRoom creates a new room if it doesn't exist and returns it
 func (hub *Hub) GetRoom(id uuid.UUID) *Room {
-
-	fmt.Println("getroom")
 
 	if _, ok := hub.hub[id]; !ok {
 		hub.hub[id] = NewRoom(id)

@@ -18,7 +18,7 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		//List of endpoints that don't require auth
-		notAuth := []string{"/login", "/user/new", "ws"}
+		notAuth := []string{"/login", "/user/new"}
 		//current request path
 		requestPath := r.URL.Path
 
@@ -26,6 +26,13 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 		for _, value := range notAuth {
 
 			if value == requestPath {
+				next.ServeHTTP(w, r)
+				return
+			}
+			// Check to see if we are on a websocket route
+			pieces := strings.Split(requestPath, "/")
+			// requestPath starts with a "/", so index 0 is an empty string and index 1 is what we're after checking
+			if pieces[1] == "ws" {
 				next.ServeHTTP(w, r)
 				return
 			}

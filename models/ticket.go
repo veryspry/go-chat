@@ -3,24 +3,27 @@ package models
 import (
 	u "go-auth/utils"
 
-	"github.com/jinzhu/gorm"
+	uuid "github.com/satori/go.uuid"
 )
 
 // Ticket type for db
 type Ticket struct {
-	gorm.Model
+	BaseFields
 	Token string `json:"token";sql:"-"`
 }
 
 // Create creates a new ticket
 func (ticket *Ticket) Create() (map[string]interface{}, bool) {
 
+	// Generate and set ID field using uuid v4
+	id, err := uuid.NewV4()
+	if err != nil {
+		return u.Message(false, "Failed to create ticket, error creating ID"), false
+	}
+	ticket.ID = id
+
 	db := GetDB()
 	db.Create(&ticket)
-
-	if ticket.ID <= 0 {
-		return u.Message(false, "Failed to authenticate websocket connection"), false
-	}
 
 	// Compose a response
 	response := u.Message(true, "user has been created")
