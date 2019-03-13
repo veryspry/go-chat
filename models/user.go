@@ -16,9 +16,10 @@ import (
 // User type for db
 type User struct {
 	BaseFields
-	Email    string `gorm:"unique;not null"`
-	Password string `gorm:"not null"`
-	Token    string `json:"token";sql:"-"`
+	Email        string          `gorm:"unique;not null"`
+	Password     string          `gorm:"not null"`
+	Token        string          `json:"token";sql:"-"`
+	Conversation []*Conversation `gorm:"many2many:user_conversations"`
 }
 
 //Validate incoming user details
@@ -148,7 +149,7 @@ func GetUserByEmail(email string) map[string]interface{} {
 }
 
 // GetUserByID - return a single user by email address
-func GetUserByID(id uint) *User {
+func GetUserByID(id uuid.UUID) *User {
 
 	// Get the db connection
 	db := GetDB()

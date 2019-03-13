@@ -38,7 +38,7 @@ func main() {
 	// CORS middleware
 	router.Use(middleware.CORSHandler)
 	// JWT middleware
-	router.Use(middleware.JwtAuthentication)
+	// router.Use(middleware.JwtAuthentication)
 
 	// Routes
 	router.HandleFunc("/user", handlers.GetUserHandler).Methods("GET")
@@ -48,6 +48,8 @@ func main() {
 	router.HandleFunc("/ws/auth", handlers.HandleWebSocketAuth).Methods("POST", "OPTIONS")
 	// Websocket connection
 	router.HandleFunc("/ws/{roomID}", wsHub.HandleWebSocketConns).Methods("GET", "POST")
+
+	router.HandleFunc("/chat/new", handlers.CreateConversationHandler).Methods("POST")
 
 	// Start listening for incoming chat messages
 	// go handlers.HandleWebSocketMessages()

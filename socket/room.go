@@ -35,23 +35,24 @@ func (r *Room) Leave(id uuid.UUID) {
 }
 
 // BroadcastAll broadcasts a message to everyone in a room, including the sender
-func (r *Room) BroadcastAll(senderID uuid.UUID, msg string) {
+func (r *Room) BroadcastAll(senderID, roomID uuid.UUID, msg string) {
 	for _, client := range r.clients {
-		client.WriteMsg(senderID, msg)
+		client.WriteMsg(senderID, roomID, msg)
 	}
 }
 
 // BroadcastExc broadcasts a message to everyone, excluding the sender
-func (r *Room) BroadcastExc(senderID uuid.UUID, msg string) {
+func (r *Room) BroadcastExc(senderID, roomID uuid.UUID, msg string) {
 	for id, client := range r.clients {
 		if id != senderID {
-			client.WriteMsg(senderID, msg)
+			client.WriteMsg(senderID, roomID, msg)
 		}
 	}
 }
 
 // HandleMsg broadcasts a messages to a room
 func (r *Room) HandleMsg(id uuid.UUID) {
+	roomID := r.id
 	for {
 		if r.clients[id] == nil {
 			break
@@ -59,9 +60,9 @@ func (r *Room) HandleMsg(id uuid.UUID) {
 		out := <-r.clients[id].out
 
 		if out.BroadcastAll == true {
-			r.BroadcastAll(id, out.Message)
+			r.BroadcastAll(id, roomID, out.Message)
 		} else {
-			r.BroadcastExc(id, out.Message)
+			r.BroadcastExc(id, roomID, out.Message)
 		}
 
 	}

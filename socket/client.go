@@ -3,6 +3,8 @@ package socket
 import (
 	"log"
 
+	"go-auth/models"
+
 	"github.com/gorilla/websocket"
 	uuid "github.com/satori/go.uuid"
 )
@@ -12,22 +14,29 @@ type Client struct {
 	// websocket connection
 	conn *websocket.Conn
 	// channel to pump messages through
-	out chan Message
+	out chan models.Message
 }
 
 // NewClient constructor
 func NewClient(conn *websocket.Conn) *Client {
 	client := new(Client)
 	client.conn = conn
-	client.out = make(chan Message)
+	client.out = make(chan models.Message)
 	return client
 }
 
 // WriteMsg writes a message to a client
-func (c *Client) WriteMsg(senderID uuid.UUID, msg string) {
-	m := Message{}
+func (c *Client) WriteMsg(senderID, roomID uuid.UUID, msg string) {
+	m := models.Message{}
 	m.Message = msg
 	m.UserID = senderID
+	resp := m.Create(senderID, roomID)
+
+	if resp["message"] != "success" {
+		// TODO: Update error handling to send back status, etc to the clien
+		log.Println("save:", resp)
+	}
+
 	err := c.conn.WriteJSON(m)
 	if err != nil {
 		// TODO: Update error handling to send back status, etc to the client
@@ -40,7 +49,7 @@ func (c *Client) ReadLoop() {
 	defer close(c.out)
 
 	for {
-		var msg Message
+		var msg models.Message
 		err := c.conn.ReadJSON(&msg)
 		if err != nil {
 			// TODO: Better error handling to send back error message to the client

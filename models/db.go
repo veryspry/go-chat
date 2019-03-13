@@ -44,6 +44,8 @@ func init() {
 	//Database migration
 	db.Debug().AutoMigrate(&User{})
 	db.Debug().AutoMigrate(&Ticket{})
+	db.Debug().AutoMigrate(&Message{})
+	db.Debug().AutoMigrate(&Conversation{})
 }
 
 // GetDB returns a reference to the db
