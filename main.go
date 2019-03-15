@@ -50,6 +50,9 @@ func main() {
 	router.HandleFunc("/ws/{roomID}", wsHub.HandleWebSocketConns).Methods("GET", "POST")
 
 	router.HandleFunc("/chat/new", handlers.CreateConversationHandler).Methods("POST")
+	router.HandleFunc("/chat/conversations", handlers.GetConversations).Methods("GET")
+	router.HandleFunc("/chat/conversations/{conversationID}", handlers.GetConversation).Methods("GET")
+	router.HandleFunc("/chat/conversations/{conversationID}/messages", handlers.GetConversationMessages).Methods("GET")
 
 	// Start listening for incoming chat messages
 	// go handlers.HandleWebSocketMessages()

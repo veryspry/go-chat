@@ -16,10 +16,10 @@ import (
 // User type for db
 type User struct {
 	BaseFields
-	Email        string          `gorm:"unique;not null"`
-	Password     string          `gorm:"not null"`
-	Token        string          `json:"token";sql:"-"`
-	Conversation []*Conversation `gorm:"many2many:user_conversations"`
+	Email        string `gorm:"unique;not null"`
+	Password     string `gorm:"not null"`
+	Token        string `json:"token" sql:"-"`
+	Conversation []*Conversation
 }
 
 //Validate incoming user details

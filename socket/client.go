@@ -26,18 +26,12 @@ func NewClient(conn *websocket.Conn) *Client {
 }
 
 // WriteMsg writes a message to a client
-func (c *Client) WriteMsg(senderID, roomID uuid.UUID, msg string) {
-	m := models.Message{}
-	m.Message = msg
-	m.UserID = senderID
-	resp := m.Create(senderID, roomID)
+func (c *Client) WriteMsg(senderID, roomID uuid.UUID, m *models.Message) {
+	// m := models.Message{}
+	// m.Message = msg
+	// m.UserID = senderID
 
-	if resp["message"] != "success" {
-		// TODO: Update error handling to send back status, etc to the clien
-		log.Println("save:", resp)
-	}
-
-	err := c.conn.WriteJSON(m)
+	err := c.conn.WriteJSON(&m)
 	if err != nil {
 		// TODO: Update error handling to send back status, etc to the client
 		log.Println("write:", err)
