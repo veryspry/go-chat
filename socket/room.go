@@ -64,10 +64,14 @@ func (r *Room) HandleMsg(id uuid.UUID) {
 		m.Message = out.Message
 		m.UserID = id
 		roomID := r.id
-		_ = m.Create(id, roomID)
+
+		// Ignore any empty message bodys
+		if m.Message != "" {
+			_ = m.Create(id, roomID)
+		}
 
 		// if resp["message"] != "success" {
-		// 	// TODO: Update error handling to send back status, etc to the clien
+		// 	// TODO: Update error handling to send back status, etc to the client
 		// 	log.Println("save:", resp)
 		// }
 

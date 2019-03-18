@@ -107,7 +107,6 @@ func Authenticate(w http.ResponseWriter, r *http.Request) {
 	referer := r.Referer()
 
 	if strings.Contains(referer, "dev") {
-		fmt.Print("\n", "REFERER: ", r.Referer())
 		// Keep the session ID key in a cookie so it can be looked up in DB later.
 		encoded, err := securecookie.EncodeMulti(session.Name(), session.ID, store.Codecs...)
 		if err != nil {
@@ -120,8 +119,6 @@ func Authenticate(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Set-Cookie", cookie)
 	}
-
-	fmt.Print("\n", "Headers: ", w.Header())
 
 	u.Respond(w, resp)
 }

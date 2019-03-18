@@ -14,8 +14,8 @@ type usersResp struct {
 	Users []string
 }
 
-// CreateConversationHandler - POST route to create a user
-func CreateConversationHandler(w http.ResponseWriter, r *http.Request) {
+// CreateConversation - POST route to create a conversation
+func CreateConversation(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 
@@ -23,16 +23,12 @@ func CreateConversationHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := decoder.Decode(&users)
 
-	fmt.Println("\n Response: \n", users.Users)
-
 	if err != nil {
 		u.Respond(w, u.Message(false, "Invalid request"))
 		return
 	}
 
-	// fmt.Println("\n Conv: \n", conv)
-
-	conv := new(models.Conversation)
+	conv := &models.Conversation{}
 
 	//Create new conversation
 	resp := conv.Create(users.Users)
@@ -43,6 +39,27 @@ func CreateConversationHandler(w http.ResponseWriter, r *http.Request) {
 // GetConversations returns all of the conversations
 func GetConversations(w http.ResponseWriter, r *http.Request) {
 	convs := models.GetConversations()
+	u.Respond(w, convs)
+}
+
+// GetConversationsByUserID Returns all of the conversations from a single user
+func GetConversationsByUserID(w http.ResponseWriter, r *http.Request) {
+
+	idHeader := r.Header.Get("UserID")
+
+	fmt.Println("UserID", idHeader)
+
+	var resp map[string]interface{}
+
+	if idHeader == "" {
+		resp = u.Message(false, "Malformed userID header")
+		w.WriteHeader(http.StatusForbidden)
+		w.Header().Add("Content-Type", "application/json")
+		u.Respond(w, resp)
+	}
+
+	id := u.UUIDFromString(idHeader)
+	convs := models.GetConversationsByUserID(id)
 	u.Respond(w, convs)
 }
 
@@ -58,8 +75,8 @@ func GetConversation(w http.ResponseWriter, r *http.Request) {
 	u.Respond(w, resp)
 }
 
-// GetConversationMessages returns all the messages from a conversation
-func GetConversationMessages(w http.ResponseWriter, r *http.Request) {
+// GetMessagesByConversationID returns all the messages from a conversation
+func GetMessagesByConversationID(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	convID := vars["conversationID"]

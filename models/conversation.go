@@ -51,8 +51,8 @@ func (c *Conversation) Create(usrIds []string) map[string]interface{} {
 	return response
 }
 
-// GetConversationMessages returns the messages from a conversation
-func (c *Conversation) GetConversationMessages() map[string]interface{} {
+// GetMessagesByConversationID returns the messages from a conversation
+func (c *Conversation) GetMessagesByConversationID() map[string]interface{} {
 
 	message := new(Message)
 
@@ -95,6 +95,27 @@ func GetConversationByID(id uuid.UUID) map[string]interface{} {
 	resp := u.Message(false, "conversation retreived")
 	// Attach conversations to the response
 	resp["conversation"] = conv
+
+	return resp
+}
+
+// GetConversationsByUserID Returns all conversations associated with a user
+func GetConversationsByUserID(id uuid.UUID) map[string]interface{} {
+
+	usr := User{}
+
+	db := GetDB()
+	// db.Where("id = ?", id).First(&usr)
+	// db.First(usr, id)
+	// db.Model(&usr).Related(&convs, "Conversations")
+	db.Preload("Conversations").Where("id = ?", id).First(&usr)
+
+	// TODO: Add error handling around passing in non-existent or invalid
+
+	// fmt.Println("USER: ", usr.Conversations)
+
+	resp := u.Message(false, "conversations retreived")
+	resp["conversations"] = usr.Conversations
 
 	return resp
 }
