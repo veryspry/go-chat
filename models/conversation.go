@@ -107,16 +107,17 @@ func GetConversationsByUserID(id uuid.UUID) map[string]interface{} {
 	usr := User{}
 
 	db := GetDB()
-	// db.Where("id = ?", id).First(&usr)
-	// db.First(usr, id)
-	// db.Model(&usr).Related(&convs, "Conversations")
 	db.Preload("Conversations").Where("id = ?", id).First(&usr)
 
-	// TODO: Add error handling around passing in non-existent or invalid
-
-	// fmt.Println("USER: ", usr.Conversations)
+	// TODO: Add error handling around passing in non-existent or invalid UserId
 
 	resp := u.Message(false, "conversations retreived")
+
+	// Return an emtpy slice if this value empty
+	if usr.Conversations == nil {
+		usr.Conversations = make([]*Conversation, 0)
+	}
+
 	resp["conversations"] = usr.Conversations
 
 	return resp

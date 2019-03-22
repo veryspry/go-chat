@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -64,7 +65,8 @@ func (user *User) Create() map[string]interface{} {
 	// Generate and set ID field using uuid v4
 	id, err := uuid.NewV4()
 	if err != nil {
-		return u.Message(false, "Failed to create account, error creating ID")
+		fmt.Println(err, "Failed to create account, error creating ID")
+		return u.Message(false, "Error creating user")
 	}
 	user.ID = id
 
@@ -81,7 +83,7 @@ func (user *User) Create() map[string]interface{} {
 	user.Password = ""
 
 	// Compose a response
-	response := u.Message(true, "user has been created")
+	response := u.Message(true, "User created successfully")
 	// Attach the user to the response
 	response["user"] = user
 
@@ -141,6 +143,9 @@ func GetUserByEmail(email string) map[string]interface{} {
 	if user.Email == "" {
 		return u.Message(false, "User not found")
 	}
+
+	// Remove password from user
+	user.Password = ""
 
 	// Compose response message
 	resp := u.Message(true, "User found")

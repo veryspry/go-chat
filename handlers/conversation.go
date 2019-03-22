@@ -15,21 +15,25 @@ type usersResp struct {
 }
 
 // CreateConversation - POST route to create a conversation
+// Reads the user ID from the request header and adds it to the conversation
 func CreateConversation(w http.ResponseWriter, r *http.Request) {
 
+	// Decode slice of users from request
 	decoder := json.NewDecoder(r.Body)
-
 	var users usersResp
 
 	err := decoder.Decode(&users)
-
 	if err != nil {
 		u.Respond(w, u.Message(false, "Invalid request"))
 		return
 	}
 
-	conv := &models.Conversation{}
+	// Add user requesting the conversation create action to the conversation
+	currentUserID := r.Header.Get("userID")
+	users.UserIDs = append(users.UserIDs, currentUserID)
 
+	// Instantiate new conversation struct
+	conv := &models.Conversation{}
 	//Create new conversation
 	resp := conv.Create(users.UserIDs)
 

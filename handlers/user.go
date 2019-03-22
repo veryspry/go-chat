@@ -21,6 +21,7 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.URL.Query()["email"][0]
 	// Lookup user record
 	resp := models.GetUserByEmail(email)
+
 	u.Respond(w, resp)
 }
 
@@ -31,7 +32,7 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	//decode the request body into struct
 	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
-		u.Respond(w, u.Message(false, "Invalid request"))
+		u.Respond(w, u.Message(false, "Error creating user"))
 		return
 	}
 
