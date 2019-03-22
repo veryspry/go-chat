@@ -11,7 +11,7 @@ import (
 )
 
 type usersResp struct {
-	Users []string
+	UserIDs []string
 }
 
 // CreateConversation - POST route to create a conversation
@@ -31,7 +31,7 @@ func CreateConversation(w http.ResponseWriter, r *http.Request) {
 	conv := &models.Conversation{}
 
 	//Create new conversation
-	resp := conv.Create(users.Users)
+	resp := conv.Create(users.UserIDs)
 
 	u.Respond(w, resp)
 }

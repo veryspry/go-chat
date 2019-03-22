@@ -17,21 +17,11 @@ import (
 
 // GetUserHandler - GET Route for user
 func GetUserHandler(w http.ResponseWriter, r *http.Request) {
-
-	user := &models.User{}
-	//decode the request body into struct
-	err := json.NewDecoder(r.Body).Decode(user)
-	if err != nil {
-		u.Respond(w, u.Message(false, "Invalid request"))
-		return
-	}
-
-	email := user.Email
-
-	//Create account
+	// Read the email from query string
+	email := r.URL.Query()["email"][0]
+	// Lookup user record
 	resp := models.GetUserByEmail(email)
 	u.Respond(w, resp)
-
 }
 
 // CreateUserHandler - POST route to create a user
@@ -64,10 +54,16 @@ func Authenticate(w http.ResponseWriter, r *http.Request) {
 
 	resp := models.Login(user.Email, user.Password, w)
 
-	token := resp["token"].(string)
+	// If the email address isn't found
+	if resp["message"] == "Email address not found" {
+		u.Respond(w, resp)
+		return
+	}
+
+	// Type assert be a pointer to struct type models.User and then grab the token
+	token := resp["user"].(*models.User).Token
 
 	// Create a session and session cookie
-
 	// Get token_secret
 	tokenSecret := os.Getenv("token_secret")
 	// Get db uri

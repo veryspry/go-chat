@@ -16,8 +16,10 @@ type Conversation struct {
 	// association_foreignkey:userId;foreignkey:conversationId
 }
 
-// Create creates a new conversation that has all of the passed in users
+// Create creates or looks up a new conversation that has all of the passed in users
 func (c *Conversation) Create(usrIds []string) map[string]interface{} {
+
+	// TODO: Add code to check if conversation between certain users already exists
 
 	// Generate and set ID field using uuid v4
 	id, err := uuid.NewV4()

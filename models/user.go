@@ -16,10 +16,12 @@ import (
 // User type for db
 type User struct {
 	BaseFields
-	Email         string          `gorm:"unique;not null"`
-	Password      string          `gorm:"not null"`
-	Token         string          `json:"token" sql:"-"`
-	Conversations []*Conversation `gorm:"many2many:user_conversation_join;"`
+	Email         string          `gorm:"unique;not null" json:"email"`
+	FirstName     string          `gorm:"not null" json:"firstName"`
+	LastName      string          `gorm:"not null" json:"lastName"`
+	Password      string          `gorm:"not null" json:"password"`
+	Token         string          `json:"token"`
+	Conversations []*Conversation `gorm:"many2many:user_conversation_join;" json:"conversations"`
 }
 
 //Validate incoming user details
@@ -121,7 +123,7 @@ func Login(email, password string, w http.ResponseWriter) map[string]interface{}
 	// Compose response message and attach user to the response message
 	resp := u.Message(true, "Logged in")
 	resp["user"] = user
-	resp["token"] = tokenString
+	// resp["token"] = tokenString
 
 	return resp
 }
@@ -137,7 +139,7 @@ func GetUserByEmail(email string) map[string]interface{} {
 	db.Table("users").Where("email = ?", email).First(user)
 	// If user doesn't exist
 	if user.Email == "" {
-		return nil
+		return u.Message(false, "User not found")
 	}
 
 	// Compose response message

@@ -41,7 +41,7 @@ func main() {
 	// router.Use(middleware.JwtAuthentication)
 
 	// Routes
-	router.HandleFunc("/user", handlers.GetUserHandler).Methods("GET")
+	router.HandleFunc("/user", handlers.GetUserHandler).Methods("GET", "OPTIONS")
 	router.HandleFunc("/user/new", handlers.CreateUserHandler).Methods("POST")
 	router.HandleFunc("/login", handlers.Authenticate).Methods("POST", "OPTIONS")
 	// Ticketing route for ws authentication
@@ -49,9 +49,9 @@ func main() {
 	// Websocket connection
 	router.HandleFunc("/ws/{roomID}", wsHub.HandleWebSocketConns).Methods("GET", "POST")
 
-	router.HandleFunc("/chat/conversations/new", handlers.CreateConversation).Methods("POST")
+	router.HandleFunc("/chat/conversations/new", handlers.CreateConversation).Methods("POST", "OPTIONS")
 	router.HandleFunc("/chat/conversations", handlers.GetConversationsByUserID).Methods("GET", "OPTIONS")
-	router.HandleFunc("/chat/conversations/{conversationID}", handlers.GetConversation).Methods("GET")
+	router.HandleFunc("/chat/conversations/{conversationID}", handlers.GetConversation).Methods("GET", "OPTIONS")
 	router.HandleFunc("/chat/conversations/{conversationID}/messages", handlers.GetMessagesByConversationID).Methods("GET", "OPTIONS")
 
 	// Start listening for incoming chat messages
