@@ -1,7 +1,7 @@
 package socket
 
 import (
-	u "go-auth/utils"
+	u "go-chat/utils"
 	"net/http"
 
 	"github.com/gorilla/mux"

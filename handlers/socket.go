@@ -3,7 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	u "go-auth/utils"
+	u "go-chat/utils"
 	"log"
 	"net/http"
 

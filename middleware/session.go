@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"fmt"
-	"go-auth/models"
+	"go-chat/models"
 	"log"
 	"net/http"
 	"os"

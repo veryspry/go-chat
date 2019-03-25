@@ -3,7 +3,7 @@ package socket
 import (
 	"log"
 
-	"go-auth/models"
+	"go-chat/models"
 
 	"github.com/gorilla/websocket"
 	uuid "github.com/satori/go.uuid"

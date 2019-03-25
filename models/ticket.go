@@ -1,7 +1,7 @@
 package models
 
 import (
-	u "go-auth/utils"
+	u "go-chat/utils"
 
 	uuid "github.com/satori/go.uuid"
 )

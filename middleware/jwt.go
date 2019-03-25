@@ -3,8 +3,8 @@ package middleware
 import (
 	"context"
 	"fmt"
-	"go-auth/models"
-	u "go-auth/utils"
+	"go-chat/models"
+	u "go-chat/utils"
 	"net/http"
 	"os"
 	"strings"
