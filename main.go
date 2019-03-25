@@ -64,7 +64,7 @@ func main() {
 	}
 
 	// Server
-	if err := http.ListenAndServe(":"+port, router); err != nil {
+	if err := http.ListenAndServeTLS(":"+port, router); err != nil {
 		fmt.Print(err)
 	}
 }
