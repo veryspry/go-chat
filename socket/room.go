@@ -2,7 +2,7 @@ package socket
 
 import (
 	"fmt"
-	"go-auth/models"
+	"go-chat/models"
 
 	"github.com/satori/go.uuid"
 

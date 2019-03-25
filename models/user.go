@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	u "go-auth/utils"
+	u "go-chat/utils"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"

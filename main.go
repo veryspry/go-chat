@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"go-auth/handlers"
-	"go-auth/middleware"
+	"go-chat/handlers"
+	"go-chat/middleware"
 	"net/http"
 	"os"
 
-	"go-auth/models"
-	"go-auth/socket"
+	"go-chat/models"
+	"go-chat/socket"
 
 	"github.com/gorilla/mux"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
