@@ -14,7 +14,7 @@ module.exports = () => {
     entry: ["@babel/polyfill", path.join(__dirname, "src/index.js")],
     output: {
       filename: "bundle.js",
-      path: path.join(__dirname, "../prod/build"),
+      path: path.join(__dirname, "../dist"),
       publicPath: "/"
     },
     devServer: {
@@ -24,8 +24,8 @@ module.exports = () => {
       hot: false,
       open: false,
       overlay: true,
-      historyApiFallback: true,
-      host: "dev.com"
+      historyApiFallback: true
+      // host: "dev.com"
     },
     module: {
       rules: [

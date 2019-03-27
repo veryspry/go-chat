@@ -82,6 +82,11 @@ func (user *User) Create() map[string]interface{} {
 	// Delete password
 	user.Password = ""
 
+	// Normalize Email, Firstname and Lastname
+	user.Email = strings.ToLower(user.Email)
+	user.FirstName = strings.ToLower(user.FirstName)
+	user.LastName = strings.ToLower(user.LastName)
+
 	// Compose a response
 	response := u.Message(true, "User created successfully")
 	// Attach the user to the response

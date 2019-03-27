@@ -29,6 +29,9 @@ func main() {
 	db := models.GetDB()
 	defer db.Close()
 
+	// Normalize users when starting up
+	models.NormalizeUsers()
+
 	// Create a new websocket hub
 	wsHub := socket.NewHub()
 
@@ -38,21 +41,21 @@ func main() {
 	// CORS middleware
 	router.Use(middleware.CORSHandler)
 	// JWT middleware
-	// router.Use(middleware.JwtAuthentication)
+	router.Use(middleware.JwtAuthentication)
 
 	// Routes
-	router.HandleFunc("/user", handlers.GetUserHandler).Methods("GET", "OPTIONS")
-	router.HandleFunc("/user/new", handlers.CreateUserHandler).Methods("POST", "OPTIONS")
-	router.HandleFunc("/login", handlers.Authenticate).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/user", handlers.GetUserHandler).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/user/new", handlers.CreateUserHandler).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/login", handlers.Authenticate).Methods("POST", "OPTIONS")
 	// Ticketing route for ws authentication
-	router.HandleFunc("/ws/auth", handlers.HandleWebSocketAuth).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/ws/auth", handlers.HandleWebSocketAuth).Methods("POST", "OPTIONS")
 	// Websocket connection
-	router.HandleFunc("/ws/{roomID}", wsHub.HandleWebSocketConns).Methods("GET", "POST")
+	router.HandleFunc("/api/ws/{roomID}", wsHub.HandleWebSocketConns).Methods("GET", "POST", "OPTIONS")
 
-	router.HandleFunc("/chat/conversations/new", handlers.CreateConversation).Methods("POST", "OPTIONS")
-	router.HandleFunc("/chat/conversations", handlers.GetConversationsByUserID).Methods("GET", "OPTIONS")
-	router.HandleFunc("/chat/conversations/{conversationID}", handlers.GetConversation).Methods("GET", "OPTIONS")
-	router.HandleFunc("/chat/conversations/{conversationID}/messages", handlers.GetMessagesByConversationID).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/chat/conversations/new", handlers.CreateConversation).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/chat/conversations", handlers.GetConversationsByUserID).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/chat/conversations/{conversationID}", handlers.GetConversation).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/chat/conversations/{conversationID}/messages", handlers.GetMessagesByConversationID).Methods("GET", "OPTIONS")
 
 	// Start listening for incoming chat messages
 	// go handlers.HandleWebSocketMessages()
