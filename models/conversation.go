@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	u "go-chat/utils"
 
 	uuid "github.com/satori/go.uuid"
@@ -10,7 +9,6 @@ import (
 // Conversation is what groups together users into a single conversation thread
 type Conversation struct {
 	BaseFields
-	// gorm.Model
 	Messages []*Message
 	Users    []*User `gorm:"many2many:user_conversation_join;"`
 	// association_foreignkey:userId;foreignkey:conversationId
@@ -38,9 +36,6 @@ func (c *Conversation) Create(usrIds []string) map[string]interface{} {
 	}
 
 	c.Users = users
-
-	fmt.Println("USERS: ", &users)
-	fmt.Println("CONVERSATION: ", c.Users)
 
 	db := GetDB()
 	db.Debug().Create(&c)
@@ -101,13 +96,33 @@ func GetConversationByID(id uuid.UUID) map[string]interface{} {
 	return resp
 }
 
-// GetConversationsByUserID Returns all conversations associated with a user
+// GetConversationsByUserID Returns a user struct with all of their conversations attatched to it
 func GetConversationsByUserID(id uuid.UUID) map[string]interface{} {
-
-	usr := User{}
-
+	// Get db entrypoint
 	db := GetDB()
+
+	// Get the current User and their associated Conversations
+	usr := User{}
 	db.Preload("Conversations").Where("id = ?", id).First(&usr)
+
+	// Create a place to push temporary copy of users slice
+	tempUsers := []*User{}
+
+	// Look up The Users associated with each conversation
+	for _, conv := range usr.Conversations {
+		// Get all of the users associated with a conversation
+		db.Debug().Preload("Users").Where("id = ?", conv.ID).First(&conv)
+		// Copy only the fields we want to a new user
+		for _, u := range conv.Users {
+			tempUser := User{}
+			tempUser.ID = u.ID
+			tempUser.FirstName = u.FirstName
+			tempUser.LastName = u.LastName
+			tempUsers = append(tempUsers, &tempUser)
+		}
+		// Reasign Conversation.Users to the copy that was just created
+		conv.Users = tempUsers
+	}
 
 	// TODO: Add error handling around passing in non-existent or invalid UserId
 
