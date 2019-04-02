@@ -76,6 +76,9 @@ func (user *User) Create() map[string]interface{} {
 	tokenString, _ := token.SignedString([]byte(os.Getenv("token_password")))
 	user.Token = tokenString
 
+	// Lowercase FirstName, LastName & Email
+	user.Normalize()
+
 	db := GetDB()
 	db.Create(&user)
 
@@ -95,6 +98,9 @@ func (user *User) Create() map[string]interface{} {
 
 // Login a user
 func Login(email, password string, w http.ResponseWriter) map[string]interface{} {
+
+	// password isn't case sensitive
+	email = strings.ToLower(email)
 
 	user := &User{}
 
@@ -191,4 +197,12 @@ func GetUserByToken(token string) map[string]interface{} {
 	// Add ticket to the response
 	resp["user"] = user
 	return resp
+}
+
+// Normalize lowercases fields on a User that aren't case sensitive
+func (user *User) Normalize() {
+	// Lowercase FirstName, LastName & Email
+	user.FirstName = strings.ToLower(user.FirstName)
+	user.LastName = strings.ToLower(user.LastName)
+	user.Email = strings.ToLower(user.Email)
 }

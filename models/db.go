@@ -57,3 +57,17 @@ func GetDB() *gorm.DB {
 func GetDBURI() string {
 	return dbURI
 }
+
+// NormalizeUserRecords scans all User records and normalizes any that haven't lowercased, non case sensitive fields
+func NormalizeUserRecords() {
+	// Instantiate a slice to hold all of our users
+	users := []*User{}
+	// Scan for all user frecords
+	db := GetDB()
+	db.Find(&users)
+	// Normalize each record
+	for _, user := range users {
+		user.Normalize()
+		db.Save(&user)
+	}
+}

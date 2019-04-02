@@ -35,6 +35,9 @@ func main() {
 	// Create a router
 	router := mux.NewRouter()
 
+	// Normalize user records - should only need to run once and then pull out.
+	models.NormalizeUserRecords()
+
 	// CORS middleware
 	router.Use(middleware.CORSHandler)
 	// JWT middleware
