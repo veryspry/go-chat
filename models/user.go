@@ -25,6 +25,14 @@ type User struct {
 	Conversations []*Conversation `gorm:"many2many:user_conversation_join;" json:"conversations"`
 }
 
+// Normalize lowercases fields on a User that aren't case sensitive
+func (user *User) Normalize() {
+	// Lowercase FirstName, LastName & Email
+	user.FirstName = strings.ToLower(user.FirstName)
+	user.LastName = strings.ToLower(user.LastName)
+	user.Email = strings.ToLower(user.Email)
+}
+
 //Validate incoming user details
 func (user *User) Validate() (map[string]interface{}, bool) {
 
@@ -199,10 +207,17 @@ func GetUserByToken(token string) map[string]interface{} {
 	return resp
 }
 
-// Normalize lowercases fields on a User that aren't case sensitive
-func (user *User) Normalize() {
-	// Lowercase FirstName, LastName & Email
-	user.FirstName = strings.ToLower(user.FirstName)
-	user.LastName = strings.ToLower(user.LastName)
-	user.Email = strings.ToLower(user.Email)
+// GetUsers Retreives all Users in the system
+// The function automatically removes sensitive fields
+func GetUsers() []*User {
+	// Instaniate a slice to hold users
+	users := []*User{}
+	// Scan for all users
+	GetDB().Find(&users)
+	// Remove sensitive fields
+	for _, user := range users {
+		user.Password = ""
+		user.Token = ""
+	}
+	return users
 }

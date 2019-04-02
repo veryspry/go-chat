@@ -45,6 +45,7 @@ func main() {
 
 	// Routes
 	router.HandleFunc("/user", handlers.GetUserHandler).Methods("GET", "OPTIONS")
+	router.HandleFunc("/users", handlers.GetUsersHandler).Methods("GET", "OPTIONS")
 	router.HandleFunc("/user/new", handlers.CreateUserHandler).Methods("POST", "OPTIONS")
 	router.HandleFunc("/login", handlers.Authenticate).Methods("POST", "OPTIONS")
 	// Ticketing route for ws authentication

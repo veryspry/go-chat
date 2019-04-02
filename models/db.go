@@ -60,11 +60,7 @@ func GetDBURI() string {
 
 // NormalizeUserRecords scans all User records and normalizes any that haven't lowercased, non case sensitive fields
 func NormalizeUserRecords() {
-	// Instantiate a slice to hold all of our users
-	users := []*User{}
-	// Scan for all user frecords
-	db := GetDB()
-	db.Find(&users)
+	users := GetUsers()
 	// Normalize each record
 	for _, user := range users {
 		user.Normalize()
