@@ -25,6 +25,14 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	u.Respond(w, resp)
 }
 
+// GetUsersHandler gets all the Users in the system
+func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
+	users := models.GetUsers()
+	resp := u.Message(true, "Users found")
+	resp["users"] = users
+	u.Respond(w, resp)
+}
+
 // CreateUserHandler - POST route to create a user
 func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 

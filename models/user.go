@@ -25,6 +25,14 @@ type User struct {
 	Conversations []*Conversation `gorm:"many2many:user_conversation_join;" json:"conversations"`
 }
 
+// Normalize lowercases fields on a User that aren't case sensitive
+func (user *User) Normalize() {
+	// Lowercase FirstName, LastName & Email
+	user.FirstName = strings.ToLower(user.FirstName)
+	user.LastName = strings.ToLower(user.LastName)
+	user.Email = strings.ToLower(user.Email)
+}
+
 //Validate incoming user details
 func (user *User) Validate() (map[string]interface{}, bool) {
 
@@ -76,6 +84,9 @@ func (user *User) Create() map[string]interface{} {
 	tokenString, _ := token.SignedString([]byte(os.Getenv("token_password")))
 	user.Token = tokenString
 
+	// Lowercase FirstName, LastName & Email
+	user.Normalize()
+
 	db := GetDB()
 	db.Create(&user)
 
@@ -95,6 +106,9 @@ func (user *User) Create() map[string]interface{} {
 
 // Login a user
 func Login(email, password string, w http.ResponseWriter) map[string]interface{} {
+
+	// password isn't case sensitive
+	email = strings.ToLower(email)
 
 	user := &User{}
 
@@ -191,4 +205,19 @@ func GetUserByToken(token string) map[string]interface{} {
 	// Add ticket to the response
 	resp["user"] = user
 	return resp
+}
+
+// GetUsers Retreives all Users in the system
+// The function automatically removes sensitive fields
+func GetUsers() []*User {
+	// Instaniate a slice to hold users
+	users := []*User{}
+	// Scan for all users
+	GetDB().Find(&users)
+	// Remove sensitive fields
+	for _, user := range users {
+		user.Password = ""
+		user.Token = ""
+	}
+	return users
 }
