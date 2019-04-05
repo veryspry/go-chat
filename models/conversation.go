@@ -56,6 +56,9 @@ func (c *Conversation) GetMessagesByConversationID() map[string]interface{} {
 	db := GetDB()
 	m := db.Debug().Model(&c).Related(&message)
 
+	user := GetUserByID(message.UserID)
+	message.User = *user
+
 	// Compose response
 	response := u.Message(false, "messages retreived")
 	// Attach messages to the response
