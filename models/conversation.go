@@ -105,18 +105,17 @@ func GetConversationsByUserID(id uuid.UUID) map[string]interface{} {
 	usr := User{}
 	db.Preload("Conversations").Where("id = ?", id).First(&usr)
 
-	// Create a place to push temporary copy of users slice
-	tempUsers := []*User{}
-
 	// Look up The Users associated with each conversation
 	for _, conv := range usr.Conversations {
+		// Create a place to push temporary copy of users slice
+		tempUsers := []*User{}
 		// Get all of the users associated with a conversation
 		db.Debug().Preload("Users").Where("id = ?", conv.ID).First(&conv)
 		// Copy only the fields we want to a new user
 		for _, u := range conv.Users {
 			// Ignore the user requesting the conversation
 			if u.ID != id {
-				tempUser := User{}
+				tempUser := *new(User)
 				tempUser.ID = u.ID
 				tempUser.FirstName = u.FirstName
 				tempUser.LastName = u.LastName
@@ -125,6 +124,8 @@ func GetConversationsByUserID(id uuid.UUID) map[string]interface{} {
 		}
 		// Reasign Conversation.Users to the copy that was just created
 		conv.Users = tempUsers
+		// Clear tempUsers slice for next iteration
+		tempUsers = []*User{}
 	}
 
 	// TODO: Add error handling around passing in non-existent or invalid UserId
