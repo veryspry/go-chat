@@ -119,6 +119,7 @@ func GetConversationsByUserID(id uuid.UUID) map[string]interface{} {
 				tempUser.ID = u.ID
 				tempUser.FirstName = u.FirstName
 				tempUser.LastName = u.LastName
+				tempUser.Email = u.Email
 				tempUsers = append(tempUsers, &tempUser)
 			}
 		}
