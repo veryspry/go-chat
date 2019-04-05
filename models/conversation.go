@@ -51,18 +51,19 @@ func (c *Conversation) Create(usrIds []string) map[string]interface{} {
 // GetMessagesByConversationID returns the messages from a conversation
 func (c *Conversation) GetMessagesByConversationID() map[string]interface{} {
 
-	message := new(Message)
+	message := Message{}
 
 	db := GetDB()
-	m := db.Debug().Model(&c).Related(&message)
+	db.Debug().Model(&c).Related(&message)
 
+	// Attach user to the message
 	user := GetUserByID(message.UserID)
 	message.User = *user
 
 	// Compose response
 	response := u.Message(false, "messages retreived")
 	// Attach messages to the response
-	response["messages"] = m
+	response["messages"] = message
 
 	return response
 
