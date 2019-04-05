@@ -9,8 +9,8 @@ import (
 // Conversation is what groups together users into a single conversation thread
 type Conversation struct {
 	BaseFields
-	Messages []*Message
-	Users    []*User `gorm:"many2many:user_conversation_join;"`
+	Messages []*Message `json:"messages"`
+	Users    []*User    `gorm:"many2many:user_conversation_join;" json:"users"`
 	// association_foreignkey:userId;foreignkey:conversationId
 }
 

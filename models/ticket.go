@@ -9,7 +9,7 @@ import (
 // Ticket type for db
 type Ticket struct {
 	BaseFields
-	Token string `json:"token";sql:"-"`
+	Token string `json:"token" sql:"-"`
 }
 
 // Create creates a new ticket
