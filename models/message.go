@@ -12,11 +12,11 @@ type Message struct {
 	BaseFields
 	// Message belongs one User
 	UserID uuid.UUID `json:"userID"`
-	User   User
+	User   User      `json:"user"`
 	// Message belongs one Conversation
-	ConversationID uuid.UUID `json:"roomID"`
-	Conversation   Conversation
-	Message        string `json:"message"`
+	ConversationID uuid.UUID    `json:"roomID"`
+	Conversation   Conversation `json:"conversation"`
+	Message        string       `json:"message"`
 	// true broadcasts to everyone, false broadcasts to all but sender
 	BroadcastAll bool `json:"broadcastAll"`
 }
