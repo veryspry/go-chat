@@ -114,11 +114,14 @@ func GetConversationsByUserID(id uuid.UUID) map[string]interface{} {
 		db.Debug().Preload("Users").Where("id = ?", conv.ID).First(&conv)
 		// Copy only the fields we want to a new user
 		for _, u := range conv.Users {
-			tempUser := User{}
-			tempUser.ID = u.ID
-			tempUser.FirstName = u.FirstName
-			tempUser.LastName = u.LastName
-			tempUsers = append(tempUsers, &tempUser)
+			// Ignore the user requesting the conversation
+			if u.ID != id {
+				tempUser := User{}
+				tempUser.ID = u.ID
+				tempUser.FirstName = u.FirstName
+				tempUser.LastName = u.LastName
+				tempUsers = append(tempUsers, &tempUser)
+			}
 		}
 		// Reasign Conversation.Users to the copy that was just created
 		conv.Users = tempUsers
