@@ -7,6 +7,6 @@ import (
 
 // Token JWT claims struct
 type Token struct {
-	UserID uuid.UUID
+	UserID uuid.UUID `json:"userID"`
 	jwt.StandardClaims
 }
