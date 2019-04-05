@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	u "go-chat/utils"
 
 	uuid "github.com/satori/go.uuid"
@@ -23,8 +22,6 @@ type Message struct {
 
 // Create saves a new Message to the db
 func (m *Message) Create(senderID, roomID uuid.UUID) map[string]interface{} {
-
-	fmt.Println("CREATING MESSAGE: ", m.Message)
 
 	// Generate and set ID field using uuid v4
 	id, err := uuid.NewV4()
@@ -57,4 +54,14 @@ func GetMessagesByConversationID(id uuid.UUID) map[string]interface{} {
 	resp := u.Message(false, "messages retrieved")
 	resp["messages"] = messages
 	return resp
+}
+
+// GetMessageUser Looks up the User associated with a Message and attaches it to the Message
+func (m *Message) GetMessageUser() error {
+	db := GetDB()
+	err := db.Where("id = ?", m.UserID).Find(&m.User).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }

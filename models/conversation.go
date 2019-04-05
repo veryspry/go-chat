@@ -49,24 +49,22 @@ func (c *Conversation) Create(usrIds []string) map[string]interface{} {
 }
 
 // GetMessagesByConversationID returns the messages from a conversation
-func (c *Conversation) GetMessagesByConversationID() map[string]interface{} {
-
-	message := Message{}
-
+func (c *Conversation) GetMessagesByConversationID() error {
+	var err error
+	// Lookup conversations related messages
 	db := GetDB()
-	db.Debug().Model(&c).Related(&message)
-
-	// Attach user to the message
-	user := GetUserByID(message.UserID)
-	message.User = *user
-
-	// Compose response
-	response := u.Message(false, "messages retreived")
-	// Attach messages to the response
-	response["messages"] = message
-
-	return response
-
+	err = db.Where("conversation_id = ?", c.ID).Find(&c.Messages).Error
+	if err != nil {
+		return err
+	}
+	// Attach a user to each message
+	for _, message := range c.Messages {
+		err = message.GetMessageUser()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // GetConversations returns all conversations from the db
@@ -86,18 +84,13 @@ func GetConversations() map[string]interface{} {
 }
 
 // GetConversationByID gets a single conversation by id
-func GetConversationByID(id uuid.UUID) map[string]interface{} {
+func GetConversationByID(id uuid.UUID) Conversation {
 
 	c := Conversation{}
 	db := GetDB()
-	conv := db.Where("id = ?", id).Find(&c)
+	db.Where("id = ?", id).Find(&c)
 
-	// Compose response
-	resp := u.Message(false, "conversation retreived")
-	// Attach conversations to the response
-	resp["conversation"] = conv
-
-	return resp
+	return c
 }
 
 // GetConversationsByUserID Returns a user struct with all of their conversations attatched to it

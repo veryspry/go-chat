@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"go-chat/models"
 	u "go-chat/utils"
 	"net/http"
@@ -51,8 +50,6 @@ func GetConversationsByUserID(w http.ResponseWriter, r *http.Request) {
 
 	idHeader := r.Header.Get("UserID")
 
-	fmt.Println("UserID", idHeader)
-
 	var resp map[string]interface{}
 
 	if idHeader == "" {
@@ -75,19 +72,41 @@ func GetConversation(w http.ResponseWriter, r *http.Request) {
 
 	id := u.UUIDFromString(convID)
 
-	resp := models.GetConversationByID(id)
+	c := models.GetConversationByID(id)
+
+	// Compose response
+	resp := u.Message(false, "conversation retreived")
+	// Attach conversations to the response
+	resp["conversation"] = c
+
 	u.Respond(w, resp)
 }
 
 // GetMessagesByConversationID returns all the messages from a conversation
 func GetMessagesByConversationID(w http.ResponseWriter, r *http.Request) {
 
+	// Get the conversation id from the URL path
 	vars := mux.Vars(r)
 	convID := vars["conversationID"]
-
+	// Convert to type uuid.UUID
 	id := u.UUIDFromString(convID)
+	// Look up the conversation by ID
+	conversation := models.GetConversationByID(id)
 
-	resp := models.GetMessagesByConversationID(id)
+	// Attach all related messages to the conversation
+	err := conversation.GetMessagesByConversationID()
+
+	if err != nil {
+		// Compose message
+		resp := u.Message(true, "Error getting messages")
+		w.WriteHeader(http.StatusInternalServerError)
+		u.Respond(w, resp)
+		return
+	}
+
+	// Compose response
+	resp := u.Message(true, "success getting messages")
+	resp["messages"] = conversation.Messages
 
 	u.Respond(w, resp)
 }
