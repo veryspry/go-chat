@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"go-chat/handlers"
 	"go-chat/middleware"
@@ -15,17 +16,20 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func main() {
-
+func init() {
 	// Load the .env file
 	e := godotenv.Load()
 	if e != nil {
 		fmt.Print(e)
 	}
+}
 
-	// TODO
+func main() {
+	// cli flags
+	logRequest := flag.Bool("logRequest", false, "Switch to turn on development configuration")
+	flag.Parse()
+
 	// Reference the db and close connection when this function returns
-	// Still not sure if this is even necessary
 	db := models.GetDB()
 	defer db.Close()
 
@@ -37,8 +41,13 @@ func main() {
 
 	// CORS middleware
 	router.Use(middleware.CORSHandler)
+	// TODO: Debug
 	// JWT middleware
 	// router.Use(middleware.JwtAuthentication)
+
+	if *logRequest {
+		router.Use(middleware.LogReqBody)
+	}
 
 	// Routes
 	router.HandleFunc("/user", handlers.GetUserHandler).Methods("GET", "OPTIONS")
